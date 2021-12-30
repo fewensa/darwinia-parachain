@@ -18,7 +18,7 @@
 		"tokenSymbol": "CRAB"
 	},
 	"relay_chain": "kusama",
-	"para_id": 2105,
+	"para_id": 2004,
 	"consensusEngine": null,
 	"codeSubstitutes": {},
 	"genesis": {
