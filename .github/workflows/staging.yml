@@ -2,7 +2,7 @@ name: Staging
 
 on:
   push:
-    branches: [ build-image ]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -21,7 +21,7 @@ jobs:
         run: |
           apt update -y
           apt install --no-install-recommends -y \
-            curl ca-certificates make gcc g++ clang-4.0 pkg-config zip
+            curl ca-certificates make gcc g++ clang-4.0 pkg-config
 
       - name: Install rust toolchain
         uses: actions-rs/toolchain@v1
@@ -34,9 +34,9 @@ jobs:
       - name: Collect shared
         run: |
           mkdir -p shared
-          zip -jr \
-            shared/darwinia-collator-linux-x86_64.zip \
-            target/x86_64-unknown-linux-gnu/release/darwinia-collator
+          tar cjSf shared/darwinia-collator-x86_64-linux-gnu.tar.bz2 \
+            -C target/x86_64-unknown-linux-gnu/release \
+            darwinia-collator
 
       - name: Upload shared
         uses: actions/upload-artifact@v2
@@ -47,7 +47,7 @@ jobs:
   build-docker-image:
     name: Build image
     runs-on: ubuntu-latest
-    needs: [ build-package ]
+    needs: [build-package]
     steps:
       - uses: actions/checkout@v2
 
@@ -71,7 +71,7 @@ jobs:
       - name: Extract package
         run: |
           mkdir -p dist
-          unzip shared/darwinia-collator-linux-x86_64.zip -d dist/
+          tar -xvf shared/darwinia-collator-x86_64-linux-gnu.tar.bz2 -C dist/
 
       - name: Build and publish docker image
         run: |
@@ -87,7 +87,7 @@ jobs:
   clean-artifacts:
     name: Clean artifacts
     runs-on: ubuntu-latest
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     if: always()
     steps:
       - uses: geekyeggo/delete-artifact@v1
